@@ -1,12 +1,30 @@
+
+import React, { useEffect, useState } from 'react';
+import Swal from 'sweetalert2'
+import { io } from "socket.io-client";
+const socket = io("http://localhost:3000");
+
+
 import React, { useState } from "react";
 import WordComponent from "../components/WordComponent";
+
 export default function GamePage() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
   };
 
+  useEffect(() => {
+    socket.on("message", (inimessage) => {
+      console.log({ inimessage });
+    })
+    return () => {
+      socket.off('message')
+    }
+  }, [])
+
   return (
+
     <>
       {/* container */}
       <div className="container-100 h-screen flex flex-col items-center justify-center bg-slate-700">
