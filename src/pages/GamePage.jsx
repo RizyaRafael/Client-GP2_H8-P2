@@ -1,45 +1,64 @@
-import React, { useState } from 'react';
-import Swal from 'sweetalert2'
+import React, { useState } from "react";
+import WordComponent from "../components/WordComponent";
 export default function GamePage() {
-  const [guess, setGuess] = useState('');
-  // const [message, setMessage] = useState(null);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (guess.toLowerCase() === 'denis') {
-      Swal.fire("Selamat jawaban anda benar !");
-    } else {
-      Swal.fire("Ya salah :)") 
-    }
+    e.preventDefault()
   };
 
   return (
-    <div className="container-100 h-screen flex flex-col items-center justify-center bg-slate-700">
-      <h1 className="text-4xl text-white mb-8">Tebak Kata</h1>
-      <p className="text-xl text-white mb-5">Kata yang harus ditebak memiliki 5 huruf, namanya kayak alat kelamin depan diganti d</p>
+    <>
+      {/* container */}
+      <div className="container-100 h-screen flex flex-col items-center justify-center bg-slate-700">
+        {/* clue */}
 
-      <form 
-        className="lg:w-1/4 bg-slate-500 py-5 px-5 rounded-md md:w-2/4"
-        onSubmit={handleSubmit}
-      >
-        <div className="mb-5">
-          <input
-            type="text"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 px-4 dark:focus:border-blue-500"
-            placeholder="Masukkan tebakan"
-            value={guess}
-            onChange={(e) => setGuess(e.target.value)}
-          />
+        <div className="container-sm bg-slate-500 mb-5 rounded-md">
+          <h1
+            className="mb-5 text-2xl text-white w-46 px-2 inline"
+          >
+            clue: lorem ipsum color amet dic asoks laqk looan
+          </h1>
         </div>
-        <button
-        style={{width: '100%'}}
-          type="submit"
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Submit
-        </button>
-      </form>
+        {/* end clue */}
 
-    </div>
+        {/* Word Component */}
+        <WordComponent/>
+        {/* end WOrd Component */}
+
+        {/* form */}
+        <form
+          className="flex items-center justify-center w-screen gap-2 h-48 mb-10"
+          onSubmit={handleSubmit}
+        >
+          <button
+            type="submit"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
+          >
+            A
+          </button>
+          <button
+            type="submit"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
+          >
+            M
+          </button>
+        </form>
+        {/* end form */}
+
+        <div className="guest flex justify-evenly w-screen px-5">
+          <div>
+
+            <h1 className="text-3xl text-white">Guest: {0}</h1>
+          </div>
+          <div>
+
+          <h1 className="text-3xl text-white">Guest: {0}</h1>
+
+          </div>
+
+        </div>
+      </div>
+      {/* end container */}
+    </>
   );
 }
