@@ -1,11 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect} from 'react';
 import Swal from 'sweetalert2'
 import { io } from "socket.io-client";
 const socket = io("http://localhost:3000");
 
 
-import React, { useState } from "react";
+// import React, { useState } from "react";
 import WordComponent from "../components/WordComponent";
 
 export default function GamePage() {
