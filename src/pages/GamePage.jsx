@@ -8,15 +8,19 @@ import instance from "../axiosInstance";
 export default function GamePage() {
   const [users, setUsers] = useState([]);
   const [jawaban, setJawaban] = useState("")
-  const [jawabanUser1, setJawabanUser1] = useState("")
-
-  const [jawabanUser2, setJawabanUser2] = useState("")
   const [clue, setClue] = useState("");
   console.log(clue, 'ini clue');
   console.log(jawaban, "ini jawaban di client");
-  const [question, setQuestion] = useState("")
-  // console.log(clue);
-  // console.log(question);
+  const [jawabanP1, setJawabanP1] = useState("");
+  const [jawabanP2, setJawabanP2] = useState("");
+  const [currentPlayer, setCurrentPlayer] = useState(users[0]?.username);
+  const [question, setQuestion] = useState("");
+  const [disabledLetters, setDisabledLetters] = useState([]); // State untuk huruf yang telah ditekan
+
+  // State untuk username pemain
+  const [usernameP1, setUsernameP1] = useState("Player 1");
+  const [usernameP2, setUsernameP2] = useState("Player 2");
+
   async function getClue() {
     try {
       const { data } = await instance.get("/word");
@@ -43,6 +47,35 @@ export default function GamePage() {
     setJawaban(value)
     socket.emit("pilihan:jawaban", value)
   }
+    const value = e.target.value;
+    if (!disabledLetters.includes(value)) {
+      if (currentPlayer === users[0]?.username) {
+        setJawabanP1((prev) => prev + value);
+      } else {
+        setJawabanP2((prev) => prev + value);
+      }
+      setDisabledLetters((prev) => [...prev, value]); // Tambahkan huruf ke daftar yang dinonaktifkan
+
+      // Check if current player's guess is incorrect
+      const currentAnswer =
+        currentPlayer === users[0]?.username ? jawabanP1 : jawabanP2;
+      const wordSet = new Set(clue.word);
+      const currentAnswerSet = new Set(currentAnswer);
+
+      // If the guess is incorrect, switch player
+      if (!wordSet.has(currentAnswerSet)) {
+        handleSwitchPlayer();
+      }
+    }
+  };
+
+  const handleSwitchPlayer = () => {
+    setCurrentPlayer((prevPlayer) =>
+      prevPlayer === users[0]?.username
+        ? users[1]?.username
+        : users[0]?.username
+    );
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -59,6 +92,8 @@ export default function GamePage() {
   useEffect(() => {
     socket.on("users:online", (newUsers) => {
       setUsers(newUsers);
+      if (newUsers.length > 0) setUsernameP1(newUsers[0].username);
+      if (newUsers.length > 1) setUsernameP2(newUsers[1].username);
     });
 
     return () => {
@@ -95,24 +130,26 @@ export default function GamePage() {
   useEffect(() => {
       getClue()
   }, []);
+
   return (
     <>
-      {/* container */}
       <div className="container-100 h-screen flex flex-col items-center justify-center bg-slate-700">
-        {/* clue */}
-
         <div className="container-sm bg-slate-500 mb-5 rounded-md">
           <h1 className="mb-5 text-2xl text-white w-46 px-2 inline">
             clue: {clue.hint}
           </h1>
         </div>
-        {/* end clue */}
 
-        {/* Word Component */}
-        <WordComponent clue={clue} jawaban={jawaban} />
-        {/* end WOrd Component */}
+        <WordComponent
+          clue={clue}
+          jawabanP1={jawabanP1}
+          jawabanP2={jawabanP2}
+          currentPlayer={currentPlayer}
+          handleSwitchPlayer={handleSwitchPlayer}
+          jawaban={jawaban}
+          users={users}
+        />
 
-        {/* form */}
         <form
           className="flex flex-wrap items-center justify-center w-screen gap-2 h-48 mb-10"
           onSubmit={handleSubmit}
@@ -126,26 +163,11 @@ export default function GamePage() {
             >
               {char}
             </button>
-            
-
+           
           ))}
 
         </form>
-        {/* end form */}
-
-        <div className="guest flex justify-evenly w-screen px-5">
-          {users.map((el, i) => {
-            return (
-              <div key={i}>
-                <h1 className="text-3xl text-white">
-                  {el.username}: {0}
-                </h1>
-              </div>
-            );
-          })}
-        </div>
       </div>
-      {/* end container */}
     </>
   );
 }
