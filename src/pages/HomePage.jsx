@@ -13,8 +13,8 @@ export default function HomePage() {
 
   }
   const submitHandler = (e)=>{
-    e.preventDefault()
-    console.log(usernameForm,'<<<<<<<<<ini data username');
+    e.preventDefault()  
+    navigate('/games')
     
   }
   return (

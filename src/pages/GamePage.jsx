@@ -1,5 +1,5 @@
 
-import React, { useEffect} from 'react';
+import React, { useContext, useEffect} from 'react';
 import Swal from 'sweetalert2'
 import { io } from "socket.io-client";
 const socket = io("http://localhost:3000");
@@ -7,9 +7,10 @@ const socket = io("http://localhost:3000");
 
 // import React, { useState } from "react";
 import WordComponent from "../components/WordComponent";
+import { WordsContext } from '../contexts/wordContext';
 
 export default function GamePage() {
-
+  const {huruf} = useContext(WordsContext)
   const handleSubmit = (e) => {
     e.preventDefault()
   };
@@ -48,18 +49,15 @@ export default function GamePage() {
           className="flex items-center justify-center w-screen gap-2 h-48 mb-10"
           onSubmit={handleSubmit}
         >
-          <button
+          {huruf.map((el,id)=>
+          <button key={id}
             type="submit"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
           >
-            A
+            {el}
           </button>
-          <button
-            type="submit"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
-          >
-            M
-          </button>
+          )}
+          
         </form>
         {/* end form */}
 
