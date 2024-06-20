@@ -10,10 +10,11 @@ import WordComponent from "../components/WordComponent";
 import { WordsContext } from '../contexts/wordContext';
 
 export default function GamePage() {
-  const {huruf} = useContext(WordsContext)
+  const {huruf,toggleAlphabet} = useContext(WordsContext)
   const handleSubmit = (e) => {
     e.preventDefault()
   };
+ 
 
   useEffect(() => {
     socket.on("message", (inimessage) => {
@@ -51,14 +52,17 @@ export default function GamePage() {
         >
           {huruf.map((el,id)=>
           <button key={id}
+            onClick={(e)=>{toggleAlphabet(e,el)}}
             type="submit"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
           >
             {el}
           </button>
+
+
           )}
-          
         </form>
+          
         {/* end form */}
 
         <div className="guest flex justify-evenly w-screen px-5">
