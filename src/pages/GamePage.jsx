@@ -1,46 +1,68 @@
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
-import React, { useEffect, useState } from 'react';
-import Swal from 'sweetalert2'
-import { io } from "socket.io-client";
-const socket = io("http://localhost:3000");
-
-
-import React, { useState } from "react";
 import WordComponent from "../components/WordComponent";
+import socket from "../socket";
+import instance from "../axiosInstance";
 
 export default function GamePage() {
+  const [users, setUsers] = useState([]);
+
+  const [clue, setClue] = useState("");
+
+  async function getClue() {
+    try {
+      const { data } = await instance.get("/word");
+      setClue(data);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: error.response.data.message,
+      });
+    }
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault()
+    e.preventDefault();
   };
 
   useEffect(() => {
-    socket.on("message", (inimessage) => {
-      console.log({ inimessage });
-    })
+    socket.auth = {
+      username: localStorage.username,
+    };
+
+    socket.disconnect().connect();
+  }, []);
+
+  useEffect(() => {
+    socket.on("users:online", (newUsers) => {
+      setUsers(newUsers);
+    });
+
     return () => {
-      socket.off('message')
-    }
-  }, [])
+      socket.off("users:online");
+    };
+  }, []);
 
+  useEffect(() => {
+    getClue();
+  }, []);
   return (
-
     <>
       {/* container */}
       <div className="container-100 h-screen flex flex-col items-center justify-center bg-slate-700">
         {/* clue */}
 
         <div className="container-sm bg-slate-500 mb-5 rounded-md">
-          <h1
-            className="mb-5 text-2xl text-white w-46 px-2 inline"
-          >
-            clue: lorem ipsum color amet dic asoks laqk looan
+          <h1 className="mb-5 text-2xl text-white w-46 px-2 inline">
+            clue: {clue.hint}
           </h1>
         </div>
         {/* end clue */}
 
         {/* Word Component */}
-        <WordComponent/>
+        <WordComponent clue={clue} />
         {/* end WOrd Component */}
 
         {/* form */}
@@ -64,16 +86,15 @@ export default function GamePage() {
         {/* end form */}
 
         <div className="guest flex justify-evenly w-screen px-5">
-          <div>
-
-            <h1 className="text-3xl text-white">Guest: {0}</h1>
-          </div>
-          <div>
-
-          <h1 className="text-3xl text-white">Guest: {0}</h1>
-
-          </div>
-
+          {users.map((el, i) => {
+            return (
+              <div key={i}>
+                <h1 className="text-3xl text-white">
+                  {el.username}: {0}
+                </h1>
+              </div>
+            );
+          })}
         </div>
       </div>
       {/* end container */}
