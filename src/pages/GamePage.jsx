@@ -7,12 +7,15 @@ import instance from "../axiosInstance";
 
 export default function GamePage() {
   const [users, setUsers] = useState([]);
-
-  const [clue, setClue] = useState("");
-
+  const [jawaban, setJawaban] =useState("")
+  const [clue, setClue] = useState({
+    word: "kucing",
+    hint: "oyen"
+  });
+  console.log(jawaban);
   const [question, setQuestion] =useState("")
   // console.log(clue);
-  console.log(question);
+  // console.log(question);
   async function getClue() {
     try {
       const { data } = await instance.get("/word");
@@ -24,6 +27,10 @@ export default function GamePage() {
         text: error.response.data.message,
       });
     }
+  }
+
+  const clickHandler = (e) => {
+    setJawaban(prev => prev + e.target.value)
   }
 
   const handleSubmit = (e) => {
@@ -48,22 +55,22 @@ export default function GamePage() {
     };
   }, []);
 
-  useEffect(() => {
-    if (clue !== question || !clue ) {
-      socket.emit("kirim:clue", clue)
-    }
-  }, [clue])
+  // useEffect(() => {
+  //   if (clue !== question || !clue ) {
+  //     socket.emit("kirim:clue", clue)
+  //   }
+  // }, [clue])
 
-  useEffect(() => {
-    socket.on("terima:clue", (terimaQuestion) => {
-      setQuestion(terimaQuestion)
-      setClue(terimaQuestion)
-    })
-  }, [])
+  // useEffect(() => {
+  //   socket.on("terima:clue", (terimaQuestion) => {
+  //     setQuestion(terimaQuestion)
+  //     setClue(terimaQuestion)
+  //   })
+  // }, [])
 
-  useEffect(() => {
-      getClue();
-  }, []);
+  // useEffect(() => {
+  //     getClue();
+  // }, []);
   return (
     <>
       {/* container */}
@@ -78,7 +85,7 @@ export default function GamePage() {
         {/* end clue */}
 
         {/* Word Component */}
-        <WordComponent clue={clue} />
+        <WordComponent clue={clue} jawaban={jawaban}/>
         {/* end WOrd Component */}
 
         {/* form */}
@@ -87,16 +94,36 @@ export default function GamePage() {
           onSubmit={handleSubmit}
         >
           <button
-            type="submit"
+            type="button"
+            value={'k'}
+            onClick={clickHandler}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
           >
-            A
+            K
           </button>
           <button
-            type="submit"
+            type="button"
+            value={'u'}
+            onClick={clickHandler}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
           >
-            M
+            U
+          </button>
+          <button
+            type="button"
+            value={'x'}
+            onClick={clickHandler}
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
+          >
+            X
+          </button>
+          <button
+            type="button"
+            value={'g'}
+            onClick={clickHandler}
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
+          >
+            G
           </button>
         </form>
         {/* end form */}
