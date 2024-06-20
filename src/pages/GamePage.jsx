@@ -7,13 +7,14 @@ import instance from "../axiosInstance";
 
 export default function GamePage() {
   const [users, setUsers] = useState([]);
-  const [jawaban, setJawaban] =useState("")
-  const [clue, setClue] = useState({
-    word: "kucing",
-    hint: "oyen"
-  });
-  console.log(jawaban);
-  const [question, setQuestion] =useState("")
+  const [jawaban, setJawaban] = useState("")
+  const [jawabanUser1, setJawabanUser1] = useState("")
+
+  const [jawabanUser2, setJawabanUser2] = useState("")
+  const [clue, setClue] = useState("");
+  console.log(clue, 'ini clue');
+  console.log(jawaban, "ini jawaban di client");
+  const [question, setQuestion] = useState("")
   // console.log(clue);
   // console.log(question);
   async function getClue() {
@@ -29,8 +30,18 @@ export default function GamePage() {
     }
   }
 
+  const alphabet = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z'
+  ]
+
+
   const clickHandler = (e) => {
-    setJawaban(prev => prev + e.target.value)
+    console.log(e.target.value, "click handler jalan");
+    const value = jawaban + e.target.value
+    setJawaban(value)
+    socket.emit("pilihan:jawaban", value)
   }
 
   const handleSubmit = (e) => {
@@ -55,22 +66,35 @@ export default function GamePage() {
     };
   }, []);
 
-  // useEffect(() => {
-  //   if (clue !== question || !clue ) {
-  //     socket.emit("kirim:clue", clue)
-  //   }
-  // }, [clue])
+  useEffect(() => {
+    console.log(clue, question, "ini clue tidaksama question");
+    if (clue !== question || !clue ) {
+      socket.emit("kirim:clue", clue)
+    }
+  }, [clue])
 
-  // useEffect(() => {
-  //   socket.on("terima:clue", (terimaQuestion) => {
-  //     setQuestion(terimaQuestion)
-  //     setClue(terimaQuestion)
-  //   })
-  // }, [])
+  useEffect(() => {
+    socket.on("terima:clue", (terimaQuestion) => {
+      console.log(terimaQuestion,"ini socket terima");
+      setQuestion(terimaQuestion)
+      setClue(terimaQuestion)
+    })
+    socket.on("terima:jawaban", (terimaJawaban) => {
+      setJawaban(terimaJawaban)
+    })
 
-  // useEffect(() => {
-  //     getClue();
-  // }, []);
+    return () => {
+      socket.off("terima:clue")
+      socket.off("terima:jawaban")
+    }
+
+  }, [])
+
+
+
+  useEffect(() => {
+      getClue()
+  }, []);
   return (
     <>
       {/* container */}
@@ -85,46 +109,27 @@ export default function GamePage() {
         {/* end clue */}
 
         {/* Word Component */}
-        <WordComponent clue={clue} jawaban={jawaban}/>
+        <WordComponent clue={clue} jawaban={jawaban} />
         {/* end WOrd Component */}
 
         {/* form */}
         <form
-          className="flex items-center justify-center w-screen gap-2 h-48 mb-10"
+          className="flex flex-wrap items-center justify-center w-screen gap-2 h-48 mb-10"
           onSubmit={handleSubmit}
         >
-          <button
-            type="button"
-            value={'k'}
-            onClick={clickHandler}
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
-          >
-            K
-          </button>
-          <button
-            type="button"
-            value={'u'}
-            onClick={clickHandler}
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
-          >
-            U
-          </button>
-          <button
-            type="button"
-            value={'x'}
-            onClick={clickHandler}
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
-          >
-            X
-          </button>
-          <button
-            type="button"
-            value={'g'}
-            onClick={clickHandler}
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
-          >
-            G
-          </button>
+          {alphabet.map(char => (
+            jawaban.toUpperCase().includes(char) ? null : <button
+              type="button"
+              value={char.toLowerCase()}
+              onClick={clickHandler}
+              className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
+            >
+              {char}
+            </button>
+            
+
+          ))}
+
         </form>
         {/* end form */}
 
