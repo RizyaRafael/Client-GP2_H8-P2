@@ -1,8 +1,6 @@
 
 import { useContext } from "react"
 import { WordsContext } from "../contexts/wordContext"
-
-=======
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import socket from "../socket";

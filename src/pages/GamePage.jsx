@@ -1,18 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Swal from "sweetalert2";
-
-
 
 import WordComponent from "../components/WordComponent";
 import socket from "../socket";
 import instance from "../axiosInstance";
+import WordProvider from "../contexts/wordContext";
+import { WordsContext } from '../contexts/wordContext';
 
 export default function GamePage() {
   const [users, setUsers] = useState([]);
   const [jawaban, setJawaban] = useState("")
   const [clue, setClue] = useState("");
+  const {huruf} = useContext(WordsContext)
 
-
+  
   const [jawabanP1, setJawabanP1] = useState("");
   // console.log(jawabanP1, "ini jawaban player 1");
   const [jawabanP2, setJawabanP2] = useState("");
@@ -40,11 +41,7 @@ export default function GamePage() {
     }
   }
 
-  const alphabet = [
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-    'U', 'V', 'W', 'X', 'Y', 'Z'
-  ]
+  const alphabet = huruf
 
 
   const clickHandler = (e) => {
