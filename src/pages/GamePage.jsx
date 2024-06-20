@@ -9,13 +9,17 @@ export default function GamePage() {
   const [users, setUsers] = useState([]);
   const [jawaban, setJawaban] = useState("")
   const [clue, setClue] = useState("");
-  console.log(clue, 'ini clue');
-  console.log(jawaban, "ini jawaban di client");
+
+
   const [jawabanP1, setJawabanP1] = useState("");
+  // console.log(jawabanP1, "ini jawaban player 1");
   const [jawabanP2, setJawabanP2] = useState("");
-  const [currentPlayer, setCurrentPlayer] = useState(users[0]?.username);
+  // console.log(jawabanP2, "ini jawaban player 2");
+
+  const [currentPlayer, setCurrentPlayer] = useState("");
   const [question, setQuestion] = useState("");
   const [disabledLetters, setDisabledLetters] = useState([]); // State untuk huruf yang telah ditekan
+
 
   // State untuk username pemain
   const [usernameP1, setUsernameP1] = useState("Player 1");
@@ -42,41 +46,53 @@ export default function GamePage() {
 
 
   const clickHandler = (e) => {
-    console.log(e.target.value, "click handler jalan");
     const value = jawaban + e.target.value
     setJawaban(value)
-    socket.emit("pilihan:jawaban", value)
-  }
-    const value = e.target.value;
-    if (!disabledLetters.includes(value)) {
-      if (currentPlayer === users[0]?.username) {
-        setJawabanP1((prev) => prev + value);
-      } else {
-        setJawabanP2((prev) => prev + value);
-      }
-      setDisabledLetters((prev) => [...prev, value]); // Tambahkan huruf ke daftar yang dinonaktifkan
 
+    console.log(users[0]?.username, "INI USERNAME");
+    
+    if (currentPlayer === users[0]?.username) {
+      console.log("MASUK IF 1");
+      let pilihan = jawabanP1 + e.target.value
+      console.log(pilihan, "INI pilihan player 1");
+      setJawabanP1(pilihan);
+    } else {
+ 
+      console.log("MASUK IF 2");
+
+      let pilihan = jawabanP2 + e.target.value
+      console.log(pilihan, "INI pilihan player 2");
+
+      setJawabanP2(pilihan);
+    }
+    if (!disabledLetters.includes(value)) {
+      
+  
       // Check if current player's guess is incorrect
       const currentAnswer =
         currentPlayer === users[0]?.username ? jawabanP1 : jawabanP2;
       const wordSet = new Set(clue.word);
       const currentAnswerSet = new Set(currentAnswer);
-
+  
       // If the guess is incorrect, switch player
       if (!wordSet.has(currentAnswerSet)) {
         handleSwitchPlayer();
       }
     }
-  };
+  }
+
 
   const handleSwitchPlayer = () => {
-    setCurrentPlayer((prevPlayer) =>
-      prevPlayer === users[0]?.username
-        ? users[1]?.username
-        : users[0]?.username
-    );
+    console.log(users);
+    users.map(e => {
+      if (e.username !== currentPlayer) {
+        console.log(e);
+        setCurrentPlayer(e.username);
+        socket.emit("change:player", e.username)
+      }
+    })
   };
-
+  // console.log(currentPlayer, "ini pemain sekarang");
   const handleSubmit = (e) => {
     e.preventDefault();
   };
@@ -94,41 +110,60 @@ export default function GamePage() {
       setUsers(newUsers);
       if (newUsers.length > 0) setUsernameP1(newUsers[0].username);
       if (newUsers.length > 1) setUsernameP2(newUsers[1].username);
+      if (newUsers.length > 0 && !currentPlayer) {
+        setCurrentPlayer(newUsers[0].username);
+      }
     });
-
     return () => {
       socket.off("users:online");
     };
   }, []);
 
   useEffect(() => {
-    console.log(clue, question, "ini clue tidaksama question");
-    if (clue !== question || !clue ) {
+    if (clue !== question || !clue) {
       socket.emit("kirim:clue", clue)
     }
   }, [clue])
 
   useEffect(() => {
     socket.on("terima:clue", (terimaQuestion) => {
-      console.log(terimaQuestion,"ini socket terima");
       setQuestion(terimaQuestion)
       setClue(terimaQuestion)
     })
-    socket.on("terima:jawaban", (terimaJawaban) => {
-      setJawaban(terimaJawaban)
+    socket.on("terima:username", (username) => {
+      setCurrentPlayer(username)
     })
 
     return () => {
       socket.off("terima:clue")
-      socket.off("terima:jawaban")
+      socket.off("terima:username")
     }
 
   }, [])
 
-
+  useEffect(() => {
+    socket.on("terima:jawaban", (terimaJawaban, terimajawabanP1, terimajawabanP2 ) => {
+      if (jawaban !== terimaJawaban) {
+        setJawaban(terimaJawaban)
+      }
+      if (jawabanP1 !== terimajawabanP1 && terimajawabanP1) {
+        setJawabanP1(terimajawabanP1)
+      }
+      if (jawabanP2 !== terimajawabanP2 && terimajawabanP2) {
+        setJawabanP2(terimajawabanP2)
+      }
+    })
+    return () => {
+      socket.off("terima:jawaban")
+    }
+  }, [jawaban])
 
   useEffect(() => {
-      getClue()
+    socket.emit("pilihan:jawaban", jawaban, jawabanP1, jawabanP2)
+  }, [jawaban, jawabanP1, jawabanP2])
+
+  useEffect(() => {
+    getClue()
   }, []);
 
   return (
@@ -159,15 +194,16 @@ export default function GamePage() {
               type="button"
               value={char.toLowerCase()}
               onClick={clickHandler}
+              disabled={localStorage.username === currentPlayer ? false : true}
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
             >
-              {char}
+              {char} 
             </button>
-           
+
           ))}
 
         </form>
       </div>
     </>
-  );
+  )
 }
