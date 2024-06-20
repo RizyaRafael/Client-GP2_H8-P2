@@ -10,6 +10,9 @@ export default function GamePage() {
 
   const [clue, setClue] = useState("");
 
+  const [question, setQuestion] =useState("")
+  // console.log(clue);
+  console.log(question);
   async function getClue() {
     try {
       const { data } = await instance.get("/word");
@@ -46,7 +49,20 @@ export default function GamePage() {
   }, []);
 
   useEffect(() => {
-    getClue();
+    if (clue !== question || !clue ) {
+      socket.emit("kirim:clue", clue)
+    }
+  }, [clue])
+
+  useEffect(() => {
+    socket.on("terima:clue", (terimaQuestion) => {
+      setQuestion(terimaQuestion)
+      setClue(terimaQuestion)
+    })
+  }, [])
+
+  useEffect(() => {
+      getClue();
   }, []);
   return (
     <>
