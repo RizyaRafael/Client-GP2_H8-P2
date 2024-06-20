@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
+
+
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
 
@@ -18,6 +20,7 @@ export default function HomePage() {
       <form
         onSubmit={submitHandler}
         className="lg:w-1/4 bg-slate-500 py-3 px-3 rounded-md md:w-2/4"
+
       >
         <div className="mb-5">
           <label

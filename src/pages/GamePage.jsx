@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
+
+
 import WordComponent from "../components/WordComponent";
 import socket from "../socket";
 import instance from "../axiosInstance";
@@ -139,6 +141,7 @@ export default function GamePage() {
       socket.off("terima:username")
     }
 
+
   }, [])
 
   useEffect(() => {
@@ -186,6 +189,8 @@ export default function GamePage() {
         />
 
         <form
+
+
           className="flex flex-wrap items-center justify-center w-screen gap-2 h-48 mb-10"
           onSubmit={handleSubmit}
         >
