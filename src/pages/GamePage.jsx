@@ -7,13 +7,13 @@ import instance from "../axiosInstance";
 
 export default function GamePage() {
   const [users, setUsers] = useState([]);
+  const [jawaban, setJawaban] = useState("")
+  const [clue, setClue] = useState("");
+  console.log(clue, 'ini clue');
+  console.log(jawaban, "ini jawaban di client");
   const [jawabanP1, setJawabanP1] = useState("");
   const [jawabanP2, setJawabanP2] = useState("");
   const [currentPlayer, setCurrentPlayer] = useState(users[0]?.username);
-  const [clue, setClue] = useState({
-    word: "kucing",
-    hint: "oyen",
-  });
   const [question, setQuestion] = useState("");
   const [disabledLetters, setDisabledLetters] = useState([]); // State untuk huruf yang telah ditekan
 
@@ -34,7 +34,19 @@ export default function GamePage() {
     }
   }
 
+  const alphabet = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+    'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+    'U', 'V', 'W', 'X', 'Y', 'Z'
+  ]
+
+
   const clickHandler = (e) => {
+    console.log(e.target.value, "click handler jalan");
+    const value = jawaban + e.target.value
+    setJawaban(value)
+    socket.emit("pilihan:jawaban", value)
+  }
     const value = e.target.value;
     if (!disabledLetters.includes(value)) {
       if (currentPlayer === users[0]?.username) {
@@ -90,20 +102,33 @@ export default function GamePage() {
   }, []);
 
   useEffect(() => {
-    if (clue !== question || !clue) {
-      socket.emit("kirim:clue", clue);
+    console.log(clue, question, "ini clue tidaksama question");
+    if (clue !== question || !clue ) {
+      socket.emit("kirim:clue", clue)
     }
-  }, [clue]);
+  }, [clue])
 
   useEffect(() => {
     socket.on("terima:clue", (terimaQuestion) => {
-      setQuestion(terimaQuestion);
-      setClue(terimaQuestion);
-    });
-  }, []);
+      console.log(terimaQuestion,"ini socket terima");
+      setQuestion(terimaQuestion)
+      setClue(terimaQuestion)
+    })
+    socket.on("terima:jawaban", (terimaJawaban) => {
+      setJawaban(terimaJawaban)
+    })
+
+    return () => {
+      socket.off("terima:clue")
+      socket.off("terima:jawaban")
+    }
+
+  }, [])
+
+
 
   useEffect(() => {
-    getClue();
+      getClue()
   }, []);
 
   return (
@@ -121,25 +146,26 @@ export default function GamePage() {
           jawabanP2={jawabanP2}
           currentPlayer={currentPlayer}
           handleSwitchPlayer={handleSwitchPlayer}
+          jawaban={jawaban}
           users={users}
         />
 
         <form
-          className="flex items-center justify-center w-screen gap-2 h-48 mb-10"
+          className="flex flex-wrap items-center justify-center w-screen gap-2 h-48 mb-10"
           onSubmit={handleSubmit}
         >
-          {["k", "u", "x", "g"].map((char) => (
-            <button
+          {alphabet.map(char => (
+            jawaban.toUpperCase().includes(char) ? null : <button
               type="button"
-              key={char}
-              value={char}
+              value={char.toLowerCase()}
               onClick={clickHandler}
-              disabled={disabledLetters.includes(char)} // Menonaktifkan tombol jika sudah ditekan
               className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-3xl w-96 sm:w-auto px-10 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 rounded-md"
             >
-              {char.toUpperCase()}
+              {char}
             </button>
+           
           ))}
+
         </form>
       </div>
     </>
